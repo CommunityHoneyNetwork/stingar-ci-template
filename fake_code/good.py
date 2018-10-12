@@ -7,7 +7,7 @@ def main():
 
     ding = "Unused var"
 
-    print("hi")
+    print(ding)
 
 
 if __name__ == "__main__":
