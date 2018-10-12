@@ -1,7 +1,7 @@
 node {
     def scmVars
 
-    stage('test') {
+    stage('build') {
       scmVars = checkout scm
       sh 'flake8 .'
     }
