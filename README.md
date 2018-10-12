@@ -1,0 +1,1 @@
+# stingar-ci-template
