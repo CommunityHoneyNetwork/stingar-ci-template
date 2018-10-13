@@ -2,12 +2,10 @@
 test:
   stage: test
   tags:
-    - ansible-lint
+    - flake8
 
   before_script:
-    - ansible --version
-    - ansible-lint --version
+    - flake8 --version
 
   script:
-    - ansible-lint -R .
-    - yamllint -c .yamllint .
+    - flake8 .
