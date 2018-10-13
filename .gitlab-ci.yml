@@ -2,7 +2,7 @@
 test:
   stage: test
   tags:
-    - ansible-lint
+    - linting
 
   before_script:
     - flake8 --version
