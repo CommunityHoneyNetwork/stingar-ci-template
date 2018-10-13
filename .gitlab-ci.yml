@@ -1,0 +1,11 @@
+---
+test:
+  stage: test
+  tags:
+    - linting
+
+  before_script:
+    - flake8 --version
+
+  script:
+    - flake8 .
