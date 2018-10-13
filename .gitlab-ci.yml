@@ -1,0 +1,13 @@
+---
+test:
+  stage: test
+  tags:
+    - ansible-lint
+
+  before_script:
+    - ansible --version
+    - ansible-lint --version
+
+  script:
+    - ansible-lint -R .
+    - yamllint -c .yamllint .
