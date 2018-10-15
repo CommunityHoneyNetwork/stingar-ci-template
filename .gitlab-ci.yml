@@ -96,6 +96,7 @@ container_scanning:
     ## https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
     CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
     CI_APPLICATION_TAG: $CI_COMMIT_SHA
+    CLAIR_ADDR=http://clair-dev-01.oit.duke.edu:6060
   allow_failure: true
   services:
     - docker:stable-dind
@@ -106,17 +107,11 @@ container_scanning:
     - sudo docker login -u "gitlab-ci-token" -p "${CI_BUILD_TOKEN}" ${CI_REGISTRY}
     - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" .
     - sudo docker push "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}"
-    - sudo docker run -d --name db arminc/clair-db:latest
-    - sudo docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.1
     - sudo docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
     - sudo wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
-    - sudo mv clair-scanner_linux_amd64 clair-scanner
-    - sudo chmod +x clair-scanner
-    - sudo touch clair-whitelist.yml
-    - while( ! sudo wget -q -O /dev/null http://localhost:6060/v1/namespaces ) ; do sleep 1 ; done
-    - retries=0
-    - echo "Waiting for clair daemon to start"
-    - while( ! sudo wget -T 10 -q -O /dev/null http://localhost:6060/v1/namespaces ) ; do sleep 1 ; echo -n "." ; if [ $retries -eq 10 ] ; then echo " Timeout, aborting." ; exit 1 ; fi ; retries=$(($retries+1)) ; done
-    - sudo ./clair-scanner -c http://localhost:6060 --ip $(hostname -i) -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG} || true
+    - sudo wget https://github.com/optiopay/klar/releases/download/v2.3.0/klar-2.3.0-linux-amd64
+    - sudo mv klar-2.3.0-linux-amd64 /bin/klar
+    - sudo chmod +x /bin/klar
+    - sudo /bin/klar ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG} || true
   artifacts:
     paths: [gl-container-scanning-report.json]
