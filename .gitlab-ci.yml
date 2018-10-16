@@ -18,8 +18,8 @@ linting:
   script:
     - flake8 .
 
-build:
-  stage: build
+build_container:
+  stage: test
   tags: 
     - container_scanning
   services:
@@ -102,6 +102,8 @@ code_quality:
     paths: [gl-code-quality-report.json]
 
 container_scanning:
+  dependencies:
+    - build_container
   image: docker:stable
   variables:
     ## Define two new variables based on GitLab's CI/CD predefined variables
@@ -117,7 +119,6 @@ container_scanning:
   script:
     - env
     - sudo docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
-#   - sudo systemctl stop firewalld
     - sudo docker run -d --name db arminc/clair-db:latest
     - sudo docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.5
     - sudo wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
