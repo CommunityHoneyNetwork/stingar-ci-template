@@ -19,7 +19,7 @@ linting:
     - flake8 .
 
 build_container:
-  stage: test
+  stage: build
   tags: 
     - container_scanning
   services:
@@ -102,15 +102,13 @@ code_quality:
     paths: [gl-code-quality-report.json]
 
 container_scanning:
-  dependencies:
-    - build_container
   image: docker:stable
-  variables:
-    ## Define two new variables based on GitLab's CI/CD predefined variables
-    ## https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
-    CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
-    CI_APPLICATION_TAG: $CI_COMMIT_SHA
-    CLAIR_ADDR: http://clair-dev-01.oit.duke.edu:6060
+# variables:
+#   ## Define two new variables based on GitLab's CI/CD predefined variables
+#   ## https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
+#   CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+#   CI_APPLICATION_TAG: $CI_COMMIT_SHA
+#   CLAIR_ADDR: http://clair-dev-01.oit.duke.edu:6060
   allow_failure: true
   services:
     - docker:stable-dind
