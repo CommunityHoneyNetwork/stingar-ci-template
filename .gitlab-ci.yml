@@ -28,7 +28,6 @@ build_container:
     - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" .
     - sudo docker push "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}"
 
-# This doesn't work yet... /shrug
 dependency_scanning:
    image: docker:stable
    variables:
