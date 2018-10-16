@@ -1,4 +1,12 @@
 ---
+variables:
+  DOCKER_DRIVER: overlay2
+  ## Define two new variables based on GitLab's CI/CD predefined variables
+  ## https://docs.gitlab.com/ee/ci/variables/#predefined-variables-environment-variables
+  CI_APPLICATION_REPOSITORY: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+  CI_APPLICATION_TAG: $CI_COMMIT_SHA
+  CLAIR_ADDR: http://clair-dev-01.oit.duke.edu:6060
+
 linting:
   stage: test
   tags:
@@ -9,6 +17,17 @@ linting:
 
   script:
     - flake8 .
+
+build:
+  stage: build
+  tags: 
+    - container_scanning
+  services:
+    - docker:stable-dind
+  script:
+    - sudo docker login -u "gitlab-ci-token" -p "${CI_BUILD_TOKEN}" ${CI_REGISTRY}
+    - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" .
+    - sudo docker push "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}"
 
 # This doesn't work yet... /shrug
 # dependency_scanning:
@@ -104,9 +123,6 @@ container_scanning:
     - container_scanning
   script:
     - env
-    - sudo docker login -u "gitlab-ci-token" -p "${CI_BUILD_TOKEN}" ${CI_REGISTRY}
-    - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" .
-    - sudo docker push "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}"
     - sudo docker pull ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}
 #   - sudo systemctl stop firewalld
     - sudo docker run -d --name db arminc/clair-db:latest
