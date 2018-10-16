@@ -112,6 +112,7 @@ container_scanning:
 #   - sudo mv klar-2.3.0-linux-amd64 /bin/klar
 #   - sudo chmod +x /bin/klar
 #   - JSON_OUTPUT=true CLAIR_ADDR=http://clair-dev-01.oit.duke.edu:6060 /bin/klar ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG} > gl-container-scanning-report.json || true
+    - sudo systemctl stop firewalld
     - sudo docker run -d --name db arminc/clair-db:latest
     - sudo docker run -p 6060:6060 --link db:postgres -d --name clair --restart on-failure arminc/clair-local-scan:v2.0.5
     - sudo wget https://github.com/arminc/clair-scanner/releases/download/v8/clair-scanner_linux_amd64
