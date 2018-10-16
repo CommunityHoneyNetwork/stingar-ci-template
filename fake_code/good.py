@@ -6,6 +6,7 @@ import sys
 def main():
 
     ding = "Unused var"
+    print(ding)
 
     print("hi")
 
