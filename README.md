@@ -1,9 +1,13 @@
 # stingar-ci-template
 
+[![pipeline status](https://gitlab.oit.duke.edu/stingar/stingar-ci-template/badges/master/pipeline.svg)](https://gitlab.oit.duke.edu/stingar/stingar-ci-template/commits/master)
+
 ## Overview
 
 CI is done on disposable VMs.  Each time the CI process is run, a base VM is
 cloned, run, then deleted
+
+Want that cool looking badge in your readme?  Check for the markdown link in Settings -> CI/CD
 
 ## Setup
 
@@ -13,6 +17,7 @@ First, ensure that the 'duke-stingar' user has admin rights to the repository.
 This is required to allow gitlab to create and manage the webhooks
 
 Settings -> Collaborators & Teams -> Add duke-stingar as Admin
+
 
 ### Gitlab
 

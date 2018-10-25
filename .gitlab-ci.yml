@@ -1,4 +1,10 @@
 ---
+stages:
+  - test
+  - build
+  - integration_testing
+  - deploy
+
 variables:
   DOCKER_DRIVER: overlay2
   ## Define two new variables based on GitLab's CI/CD predefined variables
@@ -8,6 +14,7 @@ variables:
 
 pep8:
   stage: test
+  allow_failure: true
   tags:
     - linting
 
@@ -25,10 +32,10 @@ build_container:
     - docker:stable-dind
   script:
     - sudo docker login -u "gitlab-ci-token" -p "${CI_BUILD_TOKEN}" ${CI_REGISTRY}
-    - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" .
+    - sudo docker build --pull -t "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}" -f Dockerfile-centos .
     - sudo docker push "${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG}"
 
-dependency_scanning:
+.dependency_scanning:
    image: docker:stable
    variables:
      DOCKER_DRIVER: overlay2
@@ -64,7 +71,7 @@ sast:
   artifacts:
     paths: [gl-sast-report.json]
 
-license_management:
+.license_management:
   image: docker:stable
   stage: test
   tags:
@@ -80,27 +87,9 @@ license_management:
   artifacts:
     paths: [gl-license-management-report.json]
 
-#code_quality:
-# image: docker:stable
-# allow_failure: true
-# variables:
-#   CONTAINER_TIMEOUT_SECONDS: 3600
-# tags:
-#   - code_quality
-# services:
-#   - docker:stable-dind
-# script:
-#   - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
-#   - sudo docker run
-#       --env SOURCE_CODE="$PWD"
-#       --volume "$PWD":/code
-#       --volume /var/run/docker.sock:/var/run/docker.sock
-#       "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
-# artifacts:
-#   paths: [gl-code-quality-report.json]
-
 container_scanning:
   image: docker:stable
+  stage: integration_testing
   allow_failure: true
   services:
     - docker:stable-dind
@@ -123,3 +112,14 @@ container_scanning:
     - sudo ./clair-scanner -c http://127.0.0.1:6060 --ip "$(hostname -I | awk '{print $1}')" -r gl-container-scanning-report.json -l clair.log -w clair-whitelist.yml ${CI_APPLICATION_REPOSITORY}:${CI_APPLICATION_TAG} || true
   artifacts:
     paths: [gl-container-scanning-report.json]
+
+deploy_versions:
+  image: docker:stable
+  stage: deploy
+  tags:
+    - container_scanning
+  only:
+    - /^versions\/.*/
+  script:
+    - echo "Doing the deploy tag bit"
+    - echo "$CI_BUILD_REF_NAME-$(git describe --abbrev=0 --tags)"
