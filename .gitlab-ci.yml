@@ -121,5 +121,6 @@ deploy_versions:
   only:
     - /^versions/.*/
   script:
+    - env
     - echo "Doing the deploy tag bit"
-    - echo "echo $CI_BUILD_REF_NAME | awk -F / '{print $2}'"
+    - echo "$(echo $CI_BUILD_REF_NAME | awk -F / '{print $2}')"
