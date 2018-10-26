@@ -123,4 +123,5 @@ deploy_versions:
   script:
     - env
     - echo "Doing the deploy tag bit"
-    - echo "$(echo $CI_BUILD_REF_NAME | awk -F / '{print $2}')"
+    - echo "fake: docker tag ${CI_REGISTRY_IMAGE} ${CI_PROJECT_PATH}:$(echo $CI_BUILD_REF_NAME | awk -F / '{print $2}')"
+    - echo "fake: docker login, push, etc"
