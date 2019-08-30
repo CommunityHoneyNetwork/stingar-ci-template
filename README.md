@@ -29,6 +29,8 @@ Settings -> Collaborators & Teams -> Add duke-stingar as Admin
 
 * Press the 'Connect' button next to the github project you want to do CI/CD for
 
+* Once the project is connected, enable the Container Registry by enabling `Container Registry` in `Settings` -> `Visibility, project features, permissions`
+
 ## CI/CD Configuration
 
 All configuration is stored in .gitlab-ci.yml
